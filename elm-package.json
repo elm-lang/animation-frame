@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "summary": "Somewhat low-level API for smooth animations with requestAnimationFrame.",
+    "repository": "http://github.com/elm-lang/animation.git",
+    "license": "BSD3",
+    "source-directories": [
+        "src"
+    ],
+    "exposed-modules": [
+        "Animation"
+    ],
+    "native-modules": true,
+    "dependencies": {
+        "elm-lang/core": "4.0.0 <= v < 5.0.0"
+    },
+    "elm-version": "0.17.0 <= v < 0.18.0"
+}
