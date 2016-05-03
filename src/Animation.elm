@@ -8,7 +8,7 @@ with the browsers natural refresh rate. The subscriptions in this library fire
 in step with the browser so you can make sure you are not doing extra animation
 frames.
 
-**Note:** The are based on JavaScript's `requestAnimationFrame` function.
+**Note:** They are based on JavaScript's `requestAnimationFrame` function.
 
 # Animation Subscriptions
 @docs times, diffs
