@@ -1,4 +1,4 @@
-var _elm_lang$animation$Native_Animation = function()
+var _elm_lang$animation_frame$Native_AnimationFrame = function()
 {
 
 var rAF = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)

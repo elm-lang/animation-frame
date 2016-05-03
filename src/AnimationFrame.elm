@@ -1,4 +1,4 @@
-effect module Animation where { subscription = MySub } exposing
+effect module AnimationFrame where { subscription = MySub } exposing
   ( times, diffs
   )
 
@@ -8,14 +8,15 @@ with the browsers natural refresh rate. The subscriptions in this library fire
 in step with the browser so you can make sure you are not doing extra animation
 frames.
 
-**Note:** They are based on JavaScript's `requestAnimationFrame` function.
+**Note:** The subscriptions in this library hook into JavaScript's
+`requestAnimationFrame` function.
 
 # Animation Subscriptions
 @docs times, diffs
 
 -}
 
-import Native.Animation
+import Native.AnimationFrame
 import Process
 import Task exposing (Task)
 import Time exposing (Time)
@@ -123,4 +124,4 @@ onSelfMsg router newTime {subs, oldTime} =
 
 rAF : Task x Time
 rAF =
-  Native.Window.rAF
+  Native.AnimationFrame.rAF

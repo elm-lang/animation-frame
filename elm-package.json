@@ -1,13 +1,13 @@
 {
     "version": "1.0.0",
     "summary": "Somewhat low-level API for smooth animations with requestAnimationFrame.",
-    "repository": "http://github.com/elm-lang/animation.git",
+    "repository": "http://github.com/elm-lang/animation-frame.git",
     "license": "BSD3",
     "source-directories": [
         "src"
     ],
     "exposed-modules": [
-        "Animation"
+        "AnimationFrame"
     ],
     "native-modules": true,
     "dependencies": {
