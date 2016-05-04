@@ -5,9 +5,9 @@ var rAF = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
 {
 	var id = requestAnimationFrame(function(time) {
 		var now = Date.now();
-		var normalizedTime = performance.timing.navigationStart + time;
+		var navStart = performance.timing.navigationStart;
 		var yieldedTime = time ?
-			(normalizedTime > now ? time : normalizedTime) :
+			(time > navStart ? time : time + navStart) :
 			now;
 		
 		callback(_elm_lang$core$Native_Scheduler.succeed(yieldedTime));
