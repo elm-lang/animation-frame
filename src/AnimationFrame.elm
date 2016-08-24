@@ -42,7 +42,8 @@ diffs tagger =
   subscription (Diff tagger)
 
 
-{-| Request the timestamp at the next animation frame -}
+{-| Request the timestamp at the next animation frame, so that you can do more
+fine-tuned individual work within the browser's rerender cycle -}
 tick : Task x Time
 tick =
   Native.AnimationFrame.rAF
