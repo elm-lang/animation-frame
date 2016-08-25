@@ -1,5 +1,5 @@
 effect module AnimationFrame where { subscription = MySub } exposing
-  ( times, diffs
+  ( times, diffs, tick
   )
 
 {-| Browsers have their own render loop, repainting things as fast as possible.
@@ -13,6 +13,9 @@ frames.
 
 # Animation Subscriptions
 @docs times, diffs
+
+# Animation Tasks
+@docs tick
 
 -}
 
@@ -39,6 +42,12 @@ diffs tagger =
   subscription (Diff tagger)
 
 
+{-| Request the timestamp at the next animation frame, so that you can do more
+fine-tuned individual work within the browser's rerender cycle -}
+tick : Task x Time
+tick =
+  Native.AnimationFrame.rAF
+
 
 -- SUBSCRIPTIONS
 
@@ -56,7 +65,6 @@ subMap func sub =
 
     Diff tagger ->
       Diff (func << tagger)
-
 
 
 -- EFFECT MANAGER
@@ -87,7 +95,7 @@ onEffects router subs {request, oldTime} =
       Task.succeed (State [] Nothing oldTime)
 
     ( Nothing, _ ) ->
-      Process.spawn (rAF `Task.andThen` Platform.sendToSelf router)
+      Process.spawn (tick `Task.andThen` Platform.sendToSelf router)
         `Task.andThen` \pid ->
 
       Time.now
@@ -113,15 +121,10 @@ onSelfMsg router newTime {subs, oldTime} =
         Diff tagger ->
           Platform.sendToApp router (tagger diff)
   in
-    Process.spawn (rAF `Task.andThen` Platform.sendToSelf router)
+    Process.spawn (tick `Task.andThen` Platform.sendToSelf router)
       `Task.andThen` \pid ->
 
     Task.sequence (List.map send subs)
       `Task.andThen` \_ ->
 
     Task.succeed (State subs (Just pid) newTime)
-
-
-rAF : Task x Time
-rAF =
-  Native.AnimationFrame.rAF
