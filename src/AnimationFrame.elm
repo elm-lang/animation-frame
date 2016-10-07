@@ -82,18 +82,12 @@ onEffects router subs {request, oldTime} =
 
     ( Just pid, [] ) ->
       Process.kill pid
-        `Task.andThen` \_ ->
-
-      Task.succeed (State [] Nothing oldTime)
+        |> Task.andThen (\_ -> Task.succeed (State [] Nothing oldTime))
 
     ( Nothing, _ ) ->
-      Process.spawn (rAF `Task.andThen` Platform.sendToSelf router)
-        `Task.andThen` \pid ->
-
-      Time.now
-        `Task.andThen` \time ->
-
-      Task.succeed (State subs (Just pid) time)
+      Process.spawn (Task.andThen (Platform.sendToSelf router) rAF)
+        |> Task.andThen (\pid -> Time.now
+        |> Task.andThen (\time -> Task.succeed (State subs (Just pid) time)))
 
     ( Just _, _ ) ->
       Task.succeed (State subs request oldTime)
@@ -113,13 +107,9 @@ onSelfMsg router newTime {subs, oldTime} =
         Diff tagger ->
           Platform.sendToApp router (tagger diff)
   in
-    Process.spawn (rAF `Task.andThen` Platform.sendToSelf router)
-      `Task.andThen` \pid ->
-
-    Task.sequence (List.map send subs)
-      `Task.andThen` \_ ->
-
-    Task.succeed (State subs (Just pid) newTime)
+    Process.spawn (Task.andThen (Platform.sendToSelf router) rAF)
+      |> Task.andThen (\pid -> Task.sequence (List.map send subs)
+      |> Task.andThen (\_ -> Task.succeed (State subs (Just pid) newTime)))
 
 
 rAF : Task x Time
