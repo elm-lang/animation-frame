@@ -114,4 +114,4 @@ onSelfMsg router newTime {subs, oldTime} =
 
 rAF : Task x Time
 rAF =
-  Native.AnimationFrame.rAF
+  Native.AnimationFrame.create ()
