@@ -16,7 +16,7 @@ frames.
 
 -}
 
-import Native.AnimationFrame
+import Elm.Kernel.AnimationFrame
 import Process
 import Task exposing (Task)
 import Time exposing (Time)
@@ -114,4 +114,4 @@ onSelfMsg router newTime {subs, oldTime} =
 
 rAF : Task x Time
 rAF =
-  Native.AnimationFrame.create ()
+  Elm.Kernel.AnimationFrame.rAF
