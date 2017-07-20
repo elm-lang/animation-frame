@@ -3,7 +3,7 @@
     "name": "elm-lang/animation-frame",
     "summary": "Somewhat low-level API for smooth animations with requestAnimationFrame.",
     "license": "BSD-3-Clause",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "exposed-modules": [
         "AnimationFrame"
     ],
