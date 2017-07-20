@@ -11,5 +11,6 @@
     "dependencies": {
         "elm-lang/core": "6.0.0 <= v < 7.0.0"
     },
-    "test-dependencies": {}
+    "test-dependencies": {},
+    "effect-modules": true
 }
