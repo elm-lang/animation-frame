@@ -1,6 +1,6 @@
 effect module AnimationFrame where { subscription = MySub } exposing
   ( times
-  , diffs
+  , deltas
   )
 
 {-| Browsers have their own render loop, repainting things as fast as possible.
@@ -13,31 +13,35 @@ frames.
 `requestAnimationFrame` function.
 
 # Animation Subscriptions
-@docs times, diffs
+@docs times, deltas
 
 -}
 
 import Elm.Kernel.AnimationFrame
 import Process
 import Task exposing (Task)
-import Time exposing (Time)
+import Time
 
 
 
-{-| Subscribe to the current time, given in lockstep with the browser's natural
-rerender speed.
+{-| An animation frame triggers about 60 times per second.
+
+Subscribe to get the POSIX time on each frame.
 -}
-times : (Time -> msg) -> Sub msg
+times : (Time.Posix -> msg) -> Sub msg
 times tagger =
   subscription (Time tagger)
 
 
-{-| Subscribe to the time diffs between animation frames, given in lockstep
-with the browser's natural rerender speed.
+{-| An animation frame triggers about 60 times per second.
+
+Subscribe to get a message on each frame. The message is the time in
+milliseconds since the previous frame. So you should get a sequence of values
+all around `1000 / 60` which is nice for stepping animations by a time delta.
 -}
-diffs : (Time -> msg) -> Sub msg
-diffs tagger =
-  subscription (Diff tagger)
+deltas : (Int -> msg) -> Sub msg
+deltas tagger =
+  subscription (Delta tagger)
 
 
 
@@ -45,8 +49,8 @@ diffs tagger =
 
 
 type MySub msg
-  = Time (Time -> msg)
-  | Diff (Time -> msg)
+  = Time (Time.Posix -> msg)
+  | Delta (Int -> msg)
 
 
 subMap : (a -> b) -> MySub a -> MySub b
@@ -55,8 +59,8 @@ subMap func sub =
     Time tagger ->
       Time (func << tagger)
 
-    Diff tagger ->
-      Diff (func << tagger)
+    Delta tagger ->
+      Delta (func << tagger)
 
 
 
@@ -66,7 +70,7 @@ subMap func sub =
 type alias State msg =
   { subs : List (MySub msg)
   , request : Maybe Process.Id
-  , oldTime : Time
+  , oldTime : Int
   }
 
 
@@ -75,7 +79,7 @@ init =
   Task.succeed (State [] Nothing 0)
 
 
-onEffects : Platform.Router msg Time -> List (MySub msg) -> State msg -> Task Never (State msg)
+onEffects : Platform.Router msg Int -> List (MySub msg) -> State msg -> Task Never (State msg)
 onEffects router subs {request, oldTime} =
   case (request, subs) of
     ( Nothing, [] ) ->
@@ -87,32 +91,37 @@ onEffects router subs {request, oldTime} =
 
     ( Nothing, _ ) ->
       Process.spawn (Task.andThen (Platform.sendToSelf router) rAF)
-        |> Task.andThen (\pid -> Time.now
+        |> Task.andThen (\pid -> now
         |> Task.andThen (\time -> Task.succeed (State subs (Just pid) time)))
 
     ( Just _, _ ) ->
       Task.succeed (State subs request oldTime)
 
 
-onSelfMsg : Platform.Router msg Time -> Time -> State msg -> Task Never (State msg)
+onSelfMsg : Platform.Router msg Int -> Int -> State msg -> Task Never (State msg)
 onSelfMsg router newTime {subs, oldTime} =
   let
-    diff =
+    delta =
       newTime - oldTime
 
     send sub =
       case sub of
         Time tagger ->
-          Platform.sendToApp router (tagger newTime)
+          Platform.sendToApp router (tagger (Time.millisToPosix newTime))
 
-        Diff tagger ->
-          Platform.sendToApp router (tagger diff)
+        Delta tagger ->
+          Platform.sendToApp router (tagger delta)
   in
     Process.spawn (Task.andThen (Platform.sendToSelf router) rAF)
       |> Task.andThen (\pid -> Task.sequence (List.map send subs)
       |> Task.andThen (\_ -> Task.succeed (State subs (Just pid) newTime)))
 
 
-rAF : Task x Time
+rAF : Task x Int
 rAF =
-  Elm.Kernel.AnimationFrame.rAF
+  Elm.Kernel.AnimationFrame.rAF ()
+
+
+now : Task x Int
+now =
+  Elm.Kernel.AnimationFrame.now ()
