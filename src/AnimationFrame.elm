@@ -39,7 +39,7 @@ Subscribe to get a message on each frame. The message is the time in
 milliseconds since the previous frame. So you should get a sequence of values
 all around `1000 / 60` which is nice for stepping animations by a time delta.
 -}
-deltas : (Int -> msg) -> Sub msg
+deltas : (Float -> msg) -> Sub msg
 deltas tagger =
   subscription (Delta tagger)
 
@@ -50,7 +50,7 @@ deltas tagger =
 
 type MySub msg
   = Time (Time.Posix -> msg)
-  | Delta (Int -> msg)
+  | Delta (Float -> msg)
 
 
 subMap : (a -> b) -> MySub a -> MySub b
@@ -101,16 +101,13 @@ onEffects router subs {request, oldTime} =
 onSelfMsg : Platform.Router msg Int -> Int -> State msg -> Task Never (State msg)
 onSelfMsg router newTime {subs, oldTime} =
   let
-    delta =
-      newTime - oldTime
-
     send sub =
       case sub of
         Time tagger ->
           Platform.sendToApp router (tagger (Time.millisToPosix newTime))
 
         Delta tagger ->
-          Platform.sendToApp router (tagger delta)
+          Platform.sendToApp router (tagger (toFloat (newTime - oldTime)))
   in
     Process.spawn (Task.andThen (Platform.sendToSelf router) rAF)
       |> Task.andThen (\pid -> Task.sequence (List.map send subs)
