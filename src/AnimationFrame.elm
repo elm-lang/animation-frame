@@ -1,5 +1,6 @@
 effect module AnimationFrame where { subscription = MySub } exposing
-  ( times, diffs
+  ( times
+  , diffs
   )
 
 {-| Browsers have their own render loop, repainting things as fast as possible.

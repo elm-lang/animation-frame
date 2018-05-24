@@ -1,9 +1,9 @@
 {
     "type": "package",
-    "name": "elm-lang/animation-frame",
+    "name": "elm/animation-frame",
     "summary": "Somewhat low-level API for smooth animations with requestAnimationFrame.",
     "license": "BSD-3-Clause",
-    "version": "1.0.2",
+    "version": "1.0.0",
     "exposed-modules": [
         "AnimationFrame"
     ],
@@ -11,6 +11,5 @@
     "dependencies": {
         "elm-lang/core": "6.0.0 <= v < 7.0.0"
     },
-    "test-dependencies": {},
-    "effect-modules": true
+    "test-dependencies": {}
 }
